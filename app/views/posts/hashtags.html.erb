@@ -1,0 +1,5 @@
+<div class="col s12 m8">
+    <% @posts.each do |post| %>
+        <%= render partial: "post", object: post %>
+    <% end %>
+</div>

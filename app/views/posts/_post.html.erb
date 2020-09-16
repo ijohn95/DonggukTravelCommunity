@@ -1,0 +1,87 @@
+<div class="card post">
+    <div class="card-content">
+       <span class="card-title">
+            <% if post.user.avatar %>
+            <img class="circle thumbnail" src="<%= post.user.avatar.thumb.url %>" />
+            <% end %>
+            <strong><%= post.user.name %></strong>
+            <%if user_signed_in? && current_user != post.user %>
+                <% if current_user.followings.include?(post.user) %>
+                    <%= form_tag follow_path(post.user.id), method: :delete, class: "right" do %>
+                        <button class="btn-small"><i class="material-icons left">star</i>UNFOLLOW</button>
+                    <% end %>
+                <% else %>
+                    <%= form_tag follows_path, method: :post, class: "right" do %>
+                        <input type="hidden" name="followed_id" value="<%= post.user.id %>">
+                        <button class="btn-small"><i class="material-icons left">star_border</i>FOLLOW</button>
+                    <% end %>
+                <% end %>
+            <% end %>
+            </span>
+        <div style="text-align:right;"><%= post.created_at %></div>
+        
+        <div class="content">
+            <div class="card-image">
+                <% if post.image.url %>
+                <img src="<%=post.image.url %>">
+                <% end %>
+            </div>
+            <p class="pre-line"><%= render_with_hashtags(post.content) %></p>
+        </div>
+    </div>
+                    
+    <div class="card-action">
+        <% if current_user.is_like?(post) %>
+            <%= post.likes.size %>
+            <span class="red-text text-accent-4">
+            <i class="material-icons">favorite</i></span>
+            <%= link_to "LIKE", post_like_path(post), method: "post" %>  
+        <% else %>
+            <%= post.likes.size %>
+            <span class="red-text text-accent-4">
+            <i class="material-icons">favorite_border</i></span>
+            <%= link_to "LIKE", post_like_path(post), method: "post" %>
+        <% end %>
+
+        <% if current_user.is_dislike?(post) %>
+            <%= post.dislikes.size %>
+            <span class="purple-text text-darken-4">
+            <i class="material-icons">sentiment_very_dissatisfied</i></span>
+            <%= link_to "DISLIKE", post_dislike_path(post), method: "post" %> 
+        <% else %>
+            <%= post.dislikes.size %>
+            <span class="purple-text text-darken-4">
+            <i class="material-icons">sentiment_neutral</i></span>
+            <%= link_to "DISLIKE", post_dislike_path(post), method: "post" %>
+        <% end %>
+
+        <% if current_user.id == post.user_id %>
+            <%= link_to "삭제", post_path(post), method: "delete", class: "right"%>
+            <%= link_to "수정", edit_post_path(post), class: "right"%>
+        <% end %>
+        
+        <% if post.comments.present? %> 
+            <ul class="collection"> 
+            <% post.comments.each do |comment| %> 
+                <li class="collection-item"> 
+                    <span class="title" style="text-align:middle;"><img class="circle thumbnail" src="<%= comment.user.avatar.thumb.url %>" /><strong><%= comment.user.name %></strong> 
+                    <span class="right"><%= comment.created_at %></span> 
+                    <p class="pre-line"><%= comment.content %></p> 
+                    
+                    <% if comment.user.id == current_user.id %> 
+                        <div class="right"><%= link_to "삭제", post_comment_path(post, comment), method: "delete" %></div>
+                    <% end %> 
+                </li> 
+            <% end %> 
+            </ul> 
+        <% end %>
+        <%= form_tag post_comments_path(post) do %>
+            <div class="input-field">
+                <%= text_area_tag :content, nil, class: "materialize-textarea", placeholder: "댓글을 작성해주세요.", required: true %>
+            </div>
+            <div class="input-field", style="text-align:right;">
+                <button class="btn-small"><i class="material-icons right">keyboard_return</i>댓글 쓰기</button>
+            </div>
+        <% end %>
+    </div>
+</div>
